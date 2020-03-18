@@ -65,15 +65,21 @@ function startMonitoring() {
           break;
         }
       }
-      if (deleteController) {
+      if (
+        deleteController ||
+        (this.controllers[controller].hasStartedMonitoring() &&
+          !this.controllers[controller].isMonitoring())
+      ) {
         delete this.mappingSchemasInUse[deviceAddress];
         this.controllers[controller].stopMonitoring();
         this.controllers.splice(controller, 1);
-        findSupportedControllers.bind(this)();
       }
-      this.controllers[
-        controller
-      ].mappingSchemasInUse = this.mappingSchemasInUse;
+      if (this.controllers[controller]) {
+        this.controllers[
+          controller
+        ].mappingSchemasInUse = this.mappingSchemasInUse;
+      }
     }
-  }, 1);
+    findSupportedControllers.bind(this)();
+  }, 100);
 }
