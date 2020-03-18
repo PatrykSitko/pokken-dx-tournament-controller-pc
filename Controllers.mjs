@@ -1,6 +1,7 @@
 import usb from 'usb';
 import Controller from './Controller.mjs';
 import requireJSON from './modules/requireJSON.mjs';
+import './modules/json/cycle.mjs';
 
 const SupportedControllers = requireJSON(`/json/supported-controllers.json`);
 export default class Controllers {
@@ -35,7 +36,19 @@ function findSupportedControllers() {
         const controller = new Controller(potentialController, buttonMapping);
         controller.mappingSchemasInUse = this.mappingSchemasInUse;
         controller.addMappingSchemaInUse = this.addMappingSchemaInUse;
-        this.controllers.push(controller);
+        let addController = true;
+        for (let registeredController of this.controllers) {
+          if (
+            JSON.stringify(JSON.decycle(controller.controller)) ===
+            JSON.stringify(JSON.decycle(registeredController.controller))
+          ) {
+            addController = false;
+            break;
+          }
+        }
+        if (addController) {
+          this.controllers.push(controller);
+        }
       }
     }
   }
@@ -65,20 +78,20 @@ function startMonitoring() {
           break;
         }
       }
-      if (deleteController) {
+      if (
+        deleteController ||
+        (this.controllers[controller].hasStartedMonitoring() &&
+          !this.controllers[controller].isMonitoring())
+      ) {
         delete this.mappingSchemasInUse[deviceAddress];
         this.controllers[controller].stopMonitoring();
         this.controllers.splice(controller, 1);
-        findSupportedControllers.bind(this)();
+      } else if (this.controllers[controller]) {
+        this.controllers[
+          controller
+        ].mappingSchemasInUse = this.mappingSchemasInUse;
       }
-      this.controllers[
-        controller
-      ].mappingSchemasInUse = this.mappingSchemasInUse;
     }
+    findSupportedControllers.bind(this)();
   }, 1);
 }
-
-const controller = new Controllers().getControllers()[0];
-controller.startMonitoring();
-controller.addInputListener(({ buttons }) => console.log(buttons));
-// console.log(controller.controller, controller.interface, controller.endpoint);

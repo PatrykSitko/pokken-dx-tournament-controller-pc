@@ -1,17 +1,17 @@
 {
-  "name": "pokken-xd-tournament-controller",
+  "name": "pokken-dx-tournament-controller-pc",
   "version": "1.0.0",
-  "description": "Make The Pokken DX Tournament controller work with Dragon Ball FighterZ",
+  "description": "Make Your Pokken DX Tournament controller work on pc. Made with Dragon Ball FighterZ in mind.",
   "main": "index.js",
   "type": "module",
   "author": "Patryk Sitko",
   "license": "MIT",
-  "private": true,
+  "private": false,
   "dependencies": {
     "robotjs": "^0.6.0",
     "usb": "^1.6.2"
   },
   "scripts": {
-    "start": "node --experimental-modules ./Controllers.mjs"
+    "start": "node --experimental-modules ./index.mjs"
   }
 }
