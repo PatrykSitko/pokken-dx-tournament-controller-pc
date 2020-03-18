@@ -8,20 +8,20 @@ setInterval(() => {
     controller.startMonitoring();
     controller.addInputListener(({ schema, buttons }) => {
       if (JSON.stringify(buttons) !== JSON.stringify(previousButtons)) {
-        if (buttons.length > 0) {
-          for (let button of buttons) {
-            if (previousButtons.includes(button)) {
-              continue;
-            }
+        previousButtons = previousButtons.filter(previousButton => {
+          if (buttons.includes(previousButton)) {
+            return true;
+          } else {
+            robot.keyToggle(schema[previousButton], 'up');
+            return false;
+          }
+        });
+        buttons.forEach(button => {
+          if (!previousButtons.includes(button)) {
             robot.keyToggle(schema[button], 'down');
             previousButtons.push(button);
           }
-        } else {
-          for (const button of previousButtons) {
-            robot.keyToggle(schema[button], 'up');
-          }
-          previousButtons = [];
-        }
+        });
       }
     });
   }
