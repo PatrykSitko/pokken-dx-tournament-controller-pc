@@ -6,7 +6,6 @@ const controllers = new Controllers().getControllers();
 for (let controller of controllers) {
   controller.startMonitoring();
   controller.addInputListener(({ schema, buttons }) => {
-    console.log(buttons);
     if (JSON.stringify(buttons) !== JSON.stringify(previousButtons)) {
       if (buttons.length > 0) {
         for (let button of buttons) {
@@ -17,7 +16,6 @@ for (let controller of controllers) {
           previousButtons.push(button);
         }
       } else {
-        a;
         for (const button of previousButtons) {
           robot.keyToggle(schema[button], 'up');
         }
