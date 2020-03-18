@@ -14,8 +14,8 @@ export default class Controllers {
   addMappingSchemaInUse(deviceAddress, schema) {
     this.mappingSchemasInUse[deviceAddress] = schema;
   }
-  getControllers() {
-    return this.controllers;
+  get(index = -1) {
+    return index < 0 ? this.controllers : this.controllers[index];
   }
   close() {
     for (const controller of this.controllers) {
