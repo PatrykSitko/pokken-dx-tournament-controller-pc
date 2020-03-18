@@ -14,8 +14,8 @@ export default class Controllers {
   addMappingSchemaInUse(deviceAddress, schema) {
     this.mappingSchemasInUse[deviceAddress] = schema;
   }
-  getControllers() {
-    return this.controllers;
+  get(index = -1) {
+    return index < 0 ? this.controllers : this.controllers[index];
   }
   close() {
     for (const controller of this.controllers) {
@@ -39,14 +39,13 @@ function findSupportedControllers() {
         let addController = true;
         for (let registeredController of this.controllers) {
           if (
-            JSON.stringify(JSON.decycle(registeredController)) ===
-            JSON.stringify(JSON.decycle(controller))
+            JSON.stringify(JSON.decycle(controller.controller)) ===
+            JSON.stringify(JSON.decycle(registeredController.controller))
           ) {
             addController = false;
             break;
           }
         }
-        controller.startMonitoring();
         if (addController) {
           this.controllers.push(controller);
         }
@@ -87,13 +86,12 @@ function startMonitoring() {
         delete this.mappingSchemasInUse[deviceAddress];
         this.controllers[controller].stopMonitoring();
         this.controllers.splice(controller, 1);
-      }
-      if (this.controllers[controller]) {
+      } else if (this.controllers[controller]) {
         this.controllers[
           controller
         ].mappingSchemasInUse = this.mappingSchemasInUse;
       }
     }
     findSupportedControllers.bind(this)();
-  }, 100);
+  }, 1);
 }

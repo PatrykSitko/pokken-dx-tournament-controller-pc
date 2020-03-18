@@ -40,6 +40,9 @@ export default class Controller {
   }
 
   startMonitoring() {
+    if (this.hasStartedMonitoring()) {
+      return;
+    }
     this.startedMonitoring = true;
     if (this.controller) {
       this.controller.open();
@@ -86,6 +89,7 @@ export default class Controller {
   stopMonitoring() {
     this.running.endpointListener = false;
     this.running.inputEmitter = false;
+    this.startedMonitoring = false;
   }
   addInputListener(callback = ({ schema, buttons }) => {}) {
     if (typeof callback !== 'function') {
