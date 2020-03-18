@@ -1,0 +1,39 @@
+{
+  "PokkenDXTournament-NintendoSwitch": {
+    "schemas-in-use": [],
+    "schema": {
+      "0": {
+        "l": null,
+        "r": null,
+        "zl": null,
+        "zr": null,
+        "a": null,
+        "b": null,
+        "y": null,
+        "x": null,
+        "select": null,
+        "start": null,
+        "up": null,
+        "down": null,
+        "left": null,
+        "right": null
+      },
+      "1": {
+        "l": null,
+        "r": null,
+        "zl": null,
+        "zr": null,
+        "a": null,
+        "b": null,
+        "y": null,
+        "x": null,
+        "select": null,
+        "start": null,
+        "up": null,
+        "down": null,
+        "left": null,
+        "right": null
+      }
+    }
+  }
+}
