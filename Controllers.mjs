@@ -80,4 +80,5 @@ function startMonitoring() {
 
 const controller = new Controllers().getControllers()[0];
 controller.startMonitoring();
+controller.addInputListener(({ buttons }) => console.log(buttons));
 // console.log(controller.controller, controller.interface, controller.endpoint);
