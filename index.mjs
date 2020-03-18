@@ -1,5 +1,28 @@
 import Controllers from './Controllers.mjs';
+import robot from 'robotjs';
 
-const controller = new Controllers().getControllers()[0];
-controller.startMonitoring();
-controller.addInputListener(({ buttons }) => console.log(buttons));
+let previousButtons = [];
+const controllers = new Controllers().getControllers();
+for (let controller of controllers) {
+  controller.startMonitoring();
+  controller.addInputListener(({ schema, buttons }) => {
+    console.log(buttons);
+    if (JSON.stringify(buttons) !== JSON.stringify(previousButtons)) {
+      if (buttons.length > 0) {
+        for (let button of buttons) {
+          if (previousButtons.includes(button)) {
+            continue;
+          }
+          robot.keyToggle(schema[button], 'down');
+          previousButtons.push(button);
+        }
+      } else {
+        a;
+        for (const button of previousButtons) {
+          robot.keyToggle(schema[button], 'up');
+        }
+        previousButtons = [];
+      }
+    }
+  });
+}
