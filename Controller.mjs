@@ -47,7 +47,14 @@ export default class Controller {
             const availableSchemas = Object.keys(schema).filter(
               schema => !schemasInUse.includes(schema)
             );
-            const choosenSchema = availableSchemas.shift();
+            let choosenSchema = undefined;
+            if (availableSchemas.length === 0) {
+              if (this.mappingSchemasInUse[this.deviceAddress]) {
+                choosenSchema = this.mappingSchemasInUse[this.deviceAddress];
+              }
+            } else {
+              choosenSchema = availableSchemas.shift();
+            }
             if (choosenSchema) {
               this.addMappingSchemaInUse(this.deviceAddress, choosenSchema);
               this.schemaInUse = choosenSchema;
