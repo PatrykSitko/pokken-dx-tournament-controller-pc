@@ -1,5 +1,5 @@
 {
-  "name": "pokken-xd-tournament-controller-pc",
+  "name": "pokken-dx-tournament-controller-pc",
   "version": "1.0.0",
   "description": "Make Your Pokken DX Tournament controller work on pc. Made with Dragon Ball FighterZ in mind.",
   "main": "index.js",
