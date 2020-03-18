@@ -1,6 +1,7 @@
 import usb from 'usb';
 import Controller from './Controller.mjs';
 import requireJSON from './modules/requireJSON.mjs';
+import './modules/json/cycle.mjs';
 
 const SupportedControllers = requireJSON(`/json/supported-controllers.json`);
 export default class Controllers {
@@ -35,7 +36,20 @@ function findSupportedControllers() {
         const controller = new Controller(potentialController, buttonMapping);
         controller.mappingSchemasInUse = this.mappingSchemasInUse;
         controller.addMappingSchemaInUse = this.addMappingSchemaInUse;
-        this.controllers.push(controller);
+        let addController = true;
+        for (let registeredController of this.controllers) {
+          if (
+            JSON.stringify(JSON.decycle(registeredController)) ===
+            JSON.stringify(JSON.decycle(controller))
+          ) {
+            addController = false;
+            break;
+          }
+        }
+        controller.startMonitoring();
+        if (addController) {
+          this.controllers.push(controller);
+        }
       }
     }
   }
