@@ -1,22 +1,24 @@
 {
   "PokkenDXTournament-NintendoSwitch": {
-    "schemas-in-use": [],
+    "idVendor": 3853,
+    "idProduct": 146,
+    "schemas-in-use": {},
     "schema": {
       "0": {
-        "l": null,
-        "r": null,
-        "zl": null,
-        "zr": null,
-        "a": null,
-        "b": null,
-        "y": null,
-        "x": null,
-        "select": null,
-        "start": null,
-        "up": null,
-        "down": null,
-        "left": null,
-        "right": null
+        "l": "end",
+        "r": "p",
+        "zl": "l",
+        "zr": ";",
+        "a": "j",
+        "b": "k",
+        "y": "i",
+        "x": "u",
+        "select": "1",
+        "start": "tab",
+        "up": "w",
+        "down": "s",
+        "left": "a",
+        "right": "d"
       },
       "1": {
         "l": null,

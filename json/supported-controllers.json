@@ -4,65 +4,61 @@
     "idProduct": 146,
     "revisions": [256],
     "buttonMapping": {
-      "idRevision": {
-        "256": {
-          "l": {
-            "index": 0,
-            "value": 1
-          },
-          "r": {
-            "index": 0,
-            "value": 2
-          },
-          "zl": {
-            "index": 0,
-            "value": 4
-          },
-          "zr": {
-            "index": 0,
-            "value": 8
-          },
-          "a": {
-            "index": 1,
-            "value": 4
-          },
-          "b": {
-            "index": 1,
-            "value": 2
-          },
-          "y": {
-            "index": 1,
-            "value": 1
-          },
-          "x": {
-            "index": 1,
-            "value": 8
-          },
-          "select": {
-            "index": 3,
-            "value": 1
-          },
-          "start": {
-            "index": 3,
-            "value": 2
-          },
-          "up": {
-            "index": 5,
-            "value": 15
-          },
-          "down": {
-            "index": 5,
-            "value": 4
-          },
-          "left": {
-            "index": 5,
-            "value": 6
-          },
-          "right": {
-            "index": 5,
-            "value": 2
-          }
-        }
+      "l": {
+        "index": 0,
+        "value": 1
+      },
+      "r": {
+        "index": 0,
+        "value": 2
+      },
+      "zl": {
+        "index": 0,
+        "value": 4
+      },
+      "zr": {
+        "index": 0,
+        "value": 8
+      },
+      "a": {
+        "index": 1,
+        "value": 4
+      },
+      "b": {
+        "index": 1,
+        "value": 2
+      },
+      "y": {
+        "index": 1,
+        "value": 1
+      },
+      "x": {
+        "index": 1,
+        "value": 8
+      },
+      "select": {
+        "index": 3,
+        "value": 1
+      },
+      "start": {
+        "index": 3,
+        "value": 2
+      },
+      "up": {
+        "index": 5,
+        "value": 15
+      },
+      "down": {
+        "index": 5,
+        "value": 4
+      },
+      "left": {
+        "index": 5,
+        "value": 6
+      },
+      "right": {
+        "index": 5,
+        "value": 2
       }
     }
   }

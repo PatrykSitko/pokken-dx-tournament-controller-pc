@@ -1,11 +1,14 @@
-import usb from 'usb';
 import { MissingEndpointError } from './Controller.errors.mjs';
-import { Worker, workerData } from 'worker_threads';
+import requireJSON from './modules/requireJSON.mjs';
 import './modules/json/cycle.mjs';
 
+const mappingSchemas = requireJSON('./json/controller-mappings.json');
+
 export default class Controller {
-  worker = {};
+  running = {};
+  timeout = {};
   inputListeners = {};
+  buttons = [];
   constructor(controller, buttonMapping) {
     this.controller = controller;
     this.buttonMapping = buttonMapping;
@@ -20,43 +23,44 @@ export default class Controller {
     return this.controller.deviceAddress;
   }
   startMonitoring() {
-    this.worker.endpoint = new Worker(
-      './ControllerEndpointListener.worker.mjs',
-      {
-        workerData: JSON.stringify({
-          idVendor: this.idVendor,
-          idProduct: this.idProduct,
-          deviceAddress: this.deviceAddress
-        })
-      }
-    );
-    this.worker.emmitter = new Worker('./ControllerInputEmmitter.worker.mjs', {
-      workerData: JSON.stringify(
-        JSON.decycle({
-          buttonMapping: this.buttonMapping,
-          endpoint: this.endpoint
-        })
-      )
-    });
-    this.worker.endpoint.on('message', ({ error, type, payload }) => {
-      if (!error) {
-        this.worker.emmitter.postMessage(
-          JSON.stringify({ type: 'DATA', payload: command })
-        );
-      } else {
-        switch (type) {
-          default:
-            throw new Error(payload);
-          case 'MISSING_ENDPOINT_ERROR':
-            throw new MissingEndpointError(payload);
+    if (this.controller) {
+      this.controller.open();
+      this.interface = this.controller.interface(0);
+      this.interface.claim();
+      for (let entry of this.interface.endpoints) {
+        if (entry.constructor.name === 'InEndpoint') {
+          this.endpoint = this.interface.endpoint(entry.address);
         }
       }
-    });
+      if (!this.endpoint) {
+        throw new MissingEndpointError();
+      }
+      if (this.endpoint) {
+        this.endpoint.timeout = this.controller.timeout;
+        const schemasInUse = Object.values(this.mappingSchemasInUse);
+        for (let { idVendor, idProduct, schema } of Object.entries(
+          mappingSchemas
+        )) {
+          if (idVendor === this.idVendor && idProduct === this.idProduct) {
+            const availableSchemas = Object.keys(schema).filter(
+              schema => !schemasInUse.includes(schema)
+            );
+            const choosenSchema = availableSchemas.shift();
+            if (choosenSchema) {
+              this.addMappingSchemaInUse(this.deviceAddress, choosenSchema);
+              this.schemaInUse = choosenSchema;
+              this.schema = schema[choosenSchema];
+            }
+          }
+        }
+        this.timeout.endpointListener = loop.endpointListener.bind(this)();
+        this.timeout.inputEmitter = loop.inputEmitter.bind(this)();
+      }
+    }
   }
   stopMonitoring() {
-    this.worker.endpoint.postMessage(
-      JSON.stringify({ type: 'TERMINATE', payload: null })
-    );
+    this.running.endpointListener = false;
+    this.running.inputEmitter = false;
   }
   addInputListener(callback = (err, buttons) => {}) {
     if (typeof callback !== 'function') {
@@ -79,5 +83,84 @@ export default class Controller {
         : inputListener;
     delete this.inputListeners[id];
     return true;
+  }
+}
+
+const loop = {
+  endpointListener: function() {
+    this.running.endpointListener = true;
+    return setTimeout(
+      async function() {
+        let command = await transfer(this.endpoint);
+        command = command.substring(0, 6);
+        command = command.endsWith('f')
+          ? `${command.substring(0, command.length - 1)}0`
+          : command.endsWith('0')
+          ? `${command.substring(0, command.length - 1)}f`
+          : command;
+        this.command = command;
+        mapButtons.bind(this)();
+        console.log(this.buttons);
+        clearTimeout(this.timeout.endpointListener);
+        if (this.running.endpointListener) {
+          this.timeout.endpointListener = loop.endpointListener.bind(this)();
+        }
+      }.bind(this)
+    );
+  },
+  inputEmitter: function() {
+    this.running.inputEmitter = true;
+    return setTimeout(async () => {
+      clearTimeout(this.timeout.inputEmitter);
+      if (this.running.inputEmitter) {
+        this.timeout.inputEmitter = loop.inputEmitter.bind(this)();
+      }
+    });
+  }
+};
+
+function transfer(endpoint) {
+  return new Promise((resolve, reject) =>
+    endpoint.transfer(endpoint.descriptor.wMaxPacketSize, (err, data) => {
+      err ? reject(err) : resolve(data.toString('hex'));
+    })
+  );
+}
+function formatButtonMapping(buttonMapping) {
+  const regroupedButtonMapping = {};
+  for (let key in buttonMapping) {
+    if (typeof buttonMapping[key] === 'function') {
+      continue;
+    }
+    const { index, value } = buttonMapping[key];
+    if (typeof regroupedButtonMapping[index] !== 'object') {
+      regroupedButtonMapping[index] = {};
+    }
+    regroupedButtonMapping[index][value] = key;
+  }
+  return regroupedButtonMapping;
+}
+
+function mapButtons() {
+  this.previousButtons = this.buttons;
+  this.buttons = [];
+  const command = `${this.command}`.split('');
+  for (let index = 0; index < command.length; index++) {
+    if (index === 2 || index === 4) {
+      continue;
+    }
+    let keys = parseInt(`0${command[index]}`, 16);
+    const candidates = formatButtonMapping(this.buttonMapping)[index];
+    const candidateValues = Object.keys(candidates).sort((a, b) => b - a);
+    for (let candidate of candidateValues) {
+      if (candidate > keys) {
+        continue;
+      }
+      if (keys - candidate < 0) {
+        break;
+      }
+      this.buttons.push(candidates[candidate]);
+      keys -= candidate;
+    }
   }
 }

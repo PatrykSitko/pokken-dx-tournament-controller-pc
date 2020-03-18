@@ -5,12 +5,22 @@ import requireJSON from './modules/requireJSON.mjs';
 const SupportedControllers = requireJSON(`/json/supported-controllers.json`);
 export default class Controllers {
   controllers = [];
+  mappingSchemasInUse = {};
   constructor() {
     findSupportedControllers.bind(this)();
-    startMonitoring.bind(this)();
+    this.interval = startMonitoring.bind(this)();
+  }
+  addMappingSchemaInUse(deviceAddress, schema) {
+    this.mappingSchemasInUse[deviceAddress] = schema;
   }
   getControllers() {
     return this.controllers;
+  }
+  close() {
+    for (const controller of this.controllers) {
+      controller.stopMonitoring();
+    }
+    clearInterval(this.interval);
   }
 }
 
@@ -22,16 +32,17 @@ function findSupportedControllers() {
     } = potentialController;
     for (const { idVendor, idProduct, buttonMapping } of supportedControllers) {
       if (idVendor === deviceIdVendor && idProduct === deviceIdProduct) {
-        this.controllers.push(
-          new Controller(potentialController, buttonMapping)
-        );
+        const controller = new Controller(potentialController, buttonMapping);
+        controller.mappingSchemasInUse = this.mappingSchemasInUse;
+        controller.addMappingSchemaInUse = this.addMappingSchemaInUse;
+        this.controllers.push(controller);
       }
     }
   }
 }
 
 function startMonitoring() {
-  setInterval(() => {
+  return setInterval(() => {
     for (let controller in this.controllers) {
       const { idVendor, idProduct, deviceAddress } = this.controllers[
         controller
@@ -55,14 +66,18 @@ function startMonitoring() {
         }
       }
       if (deleteController) {
+        delete this.mappingSchemasInUse[deviceAddress];
         this.controllers[controller].stopMonitoring();
         this.controllers.splice(controller, 1);
         findSupportedControllers.bind(this)();
       }
+      this.controllers[
+        controller
+      ].mappingSchemasInUse = this.mappingSchemasInUse;
     }
-  }, 100);
+  }, 1);
 }
 
 const controller = new Controllers().getControllers()[0];
 controller.startMonitoring();
-setInterval(() => {}, 100);
+// console.log(controller.controller, controller.interface, controller.endpoint);
