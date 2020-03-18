@@ -2,7 +2,6 @@
   "PokkenDXTournament-NintendoSwitch": {
     "idVendor": 3853,
     "idProduct": 146,
-    "schemas-in-use": {},
     "schema": {
       "0": {
         "l": "end",
