@@ -1,5 +1,5 @@
 import Controllers from './Controllers.mjs';
-import robot from 'robotjs';
+import robot from './modules/robotjs/index.js';
 
 let previousButtons = [];
 const controllers = new Controllers();
