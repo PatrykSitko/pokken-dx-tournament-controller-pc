@@ -12,13 +12,25 @@ setInterval(() => {
           if (buttons.includes(previousButton)) {
             return true;
           } else {
-            robot.keyToggle(schema[previousButton], 'up');
+            if (previousButton.includes('-')) {
+              for (let button of previousButton.split('-')) {
+                robot.keyToggle(schema[button], 'up');
+              }
+            } else {
+              robot.keyToggle(schema[previousButton], 'up');
+            }
             return false;
           }
         });
         buttons.forEach(button => {
           if (!previousButtons.includes(button)) {
-            robot.keyToggle(schema[button], 'down');
+            if (button.includes('-')) {
+              for (let _button of button.split('-')) {
+                robot.keyToggle(schema[_button], 'down');
+              }
+            } else {
+              robot.keyToggle(schema[button], 'down');
+            }
             previousButtons.push(button);
           }
         });

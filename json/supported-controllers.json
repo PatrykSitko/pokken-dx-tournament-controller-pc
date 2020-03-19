@@ -48,17 +48,33 @@
         "index": 5,
         "value": 15
       },
+      "up-right": {
+        "index": 5,
+        "value": 1
+      },
+      "right": {
+        "index": 5,
+        "value": 2
+      },
+      "right-down": {
+        "index": 5,
+        "value": 3
+      },
       "down": {
         "index": 5,
         "value": 4
+      },
+      "down-left": {
+        "index": 5,
+        "value": 5
       },
       "left": {
         "index": 5,
         "value": 6
       },
-      "right": {
+      "left-up": {
         "index": 5,
-        "value": 2
+        "value": 7
       }
     }
   }
