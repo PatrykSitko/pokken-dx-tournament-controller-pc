@@ -9,9 +9,7 @@ export default class Controller {
   running = {};
   timeout = {};
   inputListeners = {};
-  buttons = [];
   previousButtons = undefined;
-  notify = [];
   startedMonitoring = false;
   constructor(controller, buttonMapping) {
     this.controller = controller;
@@ -126,15 +124,13 @@ const loop = {
             : command.endsWith('0')
             ? `${command.substring(0, command.length - 1)}f`
             : command;
-          this.command = command;
-          mapButtons.bind(this)();
+          emitButtons.bind(this)(command);
         }
         clearTimeout(this.timeout.endpointListener);
         if (this.running.endpointListener) {
           this.timeout.endpointListener = loop.endpointListener.bind(this)();
         }
-      }.bind(this),
-      1
+      }.bind(this)
     );
   }
 };
@@ -174,14 +170,14 @@ function formatButtonMapping(buttonMapping) {
   return regroupedButtonMapping;
 }
 
-function mapButtons() {
+function emitButtons(command) {
   const currentButtons = [];
-  const command = `${this.command}`.split('');
-  for (let index = 0; index < command.length; index++) {
+  const _command = `${command}`.split('');
+  for (let index = 0; index < _command.length; index++) {
     if (index === 2 || index === 4) {
       continue;
     }
-    let keys = parseInt(`0${command[index]}`, 16);
+    let keys = parseInt(`0${_command[index]}`, 16);
     const candidates = this.buttonMapping[index];
     const candidateValues = Object.keys(candidates).sort((a, b) => b - a);
     for (let candidate of candidateValues) {
@@ -195,10 +191,13 @@ function mapButtons() {
       keys -= candidate;
     }
   }
-  for (let inputListener in this.inputListeners) {
-    this.inputListeners[inputListener].bind(this)({
-      schema: this.schema,
-      buttons: currentButtons
-    });
+  if (JSON.stringify(this.previousButtons) !== JSON.stringify(currentButtons)) {
+    this.previousButtons = currentButtons;
+    for (let inputListener in this.inputListeners) {
+      this.inputListeners[inputListener].bind(this)({
+        schema: this.schema,
+        buttons: currentButtons
+      });
+    }
   }
 }
