@@ -82,13 +82,11 @@ export default class Controller {
           }
         }
         this.timeout.endpointListener = loop.endpointListener.bind(this)();
-        this.timeout.inputEmitter = loop.inputEmitter.bind(this)();
       }
     }
   }
   stopMonitoring() {
     this.running.endpointListener = false;
-    this.running.inputEmitter = false;
     this.startedMonitoring = false;
   }
   addInputListener(callback = ({ schema, buttons }) => {}) {
@@ -138,28 +136,6 @@ const loop = {
       }.bind(this),
       1
     );
-  },
-  inputEmitter: function() {
-    this.running.inputEmitter = true;
-    return setTimeout(async () => {
-      if (this.notify.length > 0) {
-        const buttons = this.notify.shift();
-        if (JSON.stringify(buttons) !== JSON.stringify(this.previousButtons))
-          new Promise(resolve => {
-            for (let inputListener in this.inputListeners) {
-              this.inputListeners[inputListener].bind(this)({
-                schema: this.schema,
-                buttons
-              });
-              resolve();
-            }
-          });
-      }
-      clearTimeout(this.timeout.inputEmitter);
-      if (this.running.inputEmitter) {
-        this.timeout.inputEmitter = loop.inputEmitter.bind(this)();
-      }
-    }, 1);
   }
 };
 
@@ -219,9 +195,10 @@ function mapButtons() {
       keys -= candidate;
     }
   }
-  if (JSON.stringify(this.previousButtons) !== JSON.stringify(currentButtons)) {
-    this.previousButtons = this.buttons;
-    this.notify.push(currentButtons);
+  for (let inputListener in this.inputListeners) {
+    this.inputListeners[inputListener].bind(this)({
+      schema: this.schema,
+      buttons: currentButtons
+    });
   }
-  this.buttons = currentButtons;
 }
