@@ -15,7 +15,7 @@ export default class Controller {
   startedMonitoring = false;
   constructor(controller, buttonMapping) {
     this.controller = controller;
-    this.buttonMapping = buttonMapping;
+    this.buttonMapping = formatButtonMapping(buttonMapping);
   }
   get idVendor() {
     return this.controller.deviceDescriptor.idVendor;
@@ -182,7 +182,7 @@ function mapButtons() {
       continue;
     }
     let keys = parseInt(`0${command[index]}`, 16);
-    const candidates = formatButtonMapping(this.buttonMapping)[index];
+    const candidates = this.buttonMapping[index];
     const candidateValues = Object.keys(candidates).sort((a, b) => b - a);
     for (let candidate of candidateValues) {
       if (candidate > keys) {
