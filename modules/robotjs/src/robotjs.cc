@@ -522,7 +522,6 @@ NAN_METHOD(keyTap)
 		break;
 	default:
 		tapKeyCode(key, flags);
-		microsleep(keyboardDelay);
 	}
 
 	info.GetReturnValue().Set(Nan::New(1));
@@ -596,7 +595,6 @@ NAN_METHOD(keyToggle)
 		break;
 	default:
 		toggleKeyCode(key, down, flags);
-		microsleep(keyboardDelay);
 	}
 
 	info.GetReturnValue().Set(Nan::New(1));
