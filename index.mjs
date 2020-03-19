@@ -9,29 +9,29 @@ setInterval(() => {
     controller.addInputListener(({ schema, buttons }) => {
       if (JSON.stringify(buttons) !== JSON.stringify(previousButtons)) {
         previousButtons = previousButtons.filter(previousButton => {
-          if (buttons.includes(previousButton)) {
-            return true;
-          } else {
-            if (previousButton.includes('-')) {
-              for (let button of previousButton.split('-')) {
-                robot.keyToggle(schema[button], 'up');
-              }
+          let previousButtons = [previousButton];
+          if (previousButton.includes('-')) {
+            previousButtons = previousButton.split('-');
+          }
+          for (let previousButton of previousButtons) {
+            if (buttons.includes(previousButton)) {
+              return true;
             } else {
               robot.keyToggle(schema[previousButton], 'up');
+              return false;
             }
-            return false;
           }
         });
         buttons.forEach(button => {
-          if (!previousButtons.includes(button)) {
-            if (button.includes('-')) {
-              for (let _button of button.split('-')) {
-                robot.keyToggle(schema[_button], 'down');
-              }
-            } else {
+          let buttons = [button];
+          if (button.includes('-')) {
+            buttons = button.split('-');
+          }
+          for (let button of buttons) {
+            if (!previousButtons.includes(button)) {
               robot.keyToggle(schema[button], 'down');
+              previousButtons.push(button);
             }
-            previousButtons.push(button);
           }
         });
       }
